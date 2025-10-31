@@ -38,9 +38,9 @@ public class InMemoryFlowerRepository {
 
     public void deleteLogical(int id) {
         flowers.stream()
-                .filter(flower -> flower.getId() == id && flower.isActive())
+                .filter(flower -> flower.getId() == id && !flower.isDeleted())
                 .findFirst()
-                .ifPresent(flower -> flower.setActive(false));
+                .ifPresent(flower -> flower.setDeleted(true));
     }
 
     public List<FlowerModel> findAll() {
@@ -49,7 +49,7 @@ public class InMemoryFlowerRepository {
 
     public List<FlowerModel> findActiveFlowers() {
         return flowers.stream()
-                .filter(FlowerModel::isActive)
+                .filter(f -> !f.isDeleted())
                 .collect(Collectors.toList());
     }
 

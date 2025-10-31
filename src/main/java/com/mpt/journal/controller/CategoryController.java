@@ -58,6 +58,13 @@ public class CategoryController {
         return "redirect:/categories";
     }
 
+    @PostMapping("/soft-delete")
+    public String softDeleteCategory(@RequestParam int id) {
+        categoryService.softDelete(id);
+        return "redirect:/categories";
+    }
+
+
     @PostMapping("/update")
     public String updateCategory(@RequestParam int id,
                                  @RequestParam String name,

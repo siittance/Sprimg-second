@@ -21,11 +21,12 @@ public class FlowerController {
                               @RequestParam(required = false) Double minPrice,
                               @RequestParam(required = false) Double maxPrice,
                               @RequestParam(required = false) Integer categoryId,
+                              @RequestParam(defaultValue = "false") boolean includeArchived,
                               @RequestParam(defaultValue = "1") int page,
                               @RequestParam(defaultValue = "10") int size,
                               Model model) {
 
-        List<FlowerModel> filtered = flowerService.searchAndFilter(search, minPrice, maxPrice, categoryId);
+        List<FlowerModel> filtered = flowerService.searchAndFilter(search, minPrice, maxPrice, categoryId, includeArchived);
 
         int totalCount = filtered.size();
         int totalPages = (int) Math.ceil((double) totalCount / size);
@@ -34,9 +35,7 @@ public class FlowerController {
         if (page > totalPages) page = totalPages;
         if (page < 1) page = 1;
 
-        int fromIndex = (page - 1) * size;
-        int toIndex = Math.min(fromIndex + size, totalCount);
-        List<FlowerModel> flowers = (totalCount == 0) ? List.of() : filtered.subList(fromIndex, toIndex);
+        List<FlowerModel> flowers = flowerService.getWithPagination(page, size, filtered);
 
         Map<Integer, String> categoryNames = new HashMap<>();
         for (FlowerModel f : flowers) {
@@ -51,13 +50,13 @@ public class FlowerController {
         model.addAttribute("filterCategoryId", categoryId);
         model.addAttribute("filterMinPrice", minPrice);
         model.addAttribute("filterMaxPrice", maxPrice);
+        model.addAttribute("includeArchived", includeArchived);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageSize", size);
 
         return "flowers";
     }
-
 
     @PostMapping("/add")
     public String addFlower(@RequestParam String name,

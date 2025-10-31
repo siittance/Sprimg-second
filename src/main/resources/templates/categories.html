@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Управление категориями</title>
+  <title>Категории</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; margin: 0; padding: 0; }
-    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-    h1 { color: #4caf50; }
-    .btn { padding: 6px 12px; border: none; border-radius: 5px; color: white; cursor: pointer; margin-right: 5px; text-decoration: none; }
-    .btn-primary { background: #4caf50; }
-    .btn-danger { background: #f44336; }
-    .btn-warning { background: #ff9800; }
+    body { font-family: 'Segoe UI', sans-serif; background: #fafafa; color: #222; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    h1 { font-weight: 500; margin-bottom: 20px; color: #333; }
+    .btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; margin-right: 5px; }
+    .btn-primary { background: #4caf50; color: #fff; }
+    .btn-danger { background: #e53935; color: #fff; }
+    .btn-warning { background: #fbc02d; color: #222; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #e0e0e0; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { color: #555; font-weight: 500; }
+    input[type="text"], textarea { padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 100%; font-size: 0.9rem; }
     .pagination { margin-top: 15px; }
-    .pagination a { margin: 0 3px; padding: 5px 10px; text-decoration: none; border: 1px solid #ccc; border-radius: 3px; color: #333; }
-    .pagination a.active { background: #4caf50; color: white; }
+    .pagination a { margin: 0 3px; padding: 4px 8px; text-decoration: none; border-radius: 3px; color: #555; border: 1px solid #ddd; font-size: 0.85rem; }
+    .pagination a.active { background: #4caf50; color: white; border-color: #4caf50; }
+    .actions form { display: inline-block; margin: 0; }
+    .actions button { margin: 0 2px; font-size: 0.8rem; }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>Управление категориями</h1>
-
+  <h1>Категории</h1>
   <a href="/" class="btn btn-warning">На главную</a>
-
-  <form method="post" th:action="@{/categories/add}" style="margin-top: 10px; margin-bottom: 20px;">
-    <input type="text" name="name" placeholder="Название категории" required>
-    <textarea name="description" placeholder="Описание"></textarea>
-    <button type="submit" class="btn btn-primary">Добавить категорию</button>
+  <form method="post" th:action="@{/categories/add}" style="margin-bottom: 20px;">
+    <input type="text" name="name" placeholder="Название" required>
+    <input type="text" name="description" placeholder="Описание">
+    <button type="submit" class="btn btn-primary">Добавить</button>
   </form>
 
   <form method="post" th:action="@{/categories/delete-multiple}" id="multiDeleteForm">
@@ -49,14 +50,18 @@
         <td th:text="${category.id}"></td>
         <td th:text="${category.name}"></td>
         <td th:text="${category.description}"></td>
-        <td>
-          <form method="post" th:action="@{/categories/update}" style="display:inline-block;">
+        <td class="actions">
+          <form method="post" th:action="@{/categories/update}">
             <input type="hidden" name="id" th:value="${category.id}">
-            <input type="text" name="name" th:value="${category.name}">
-            <input type="text" name="description" th:value="${category.description}">
+            <input type="text" name="name" th:value="${category.name}" style="width: 100px;">
+            <input type="text" name="description" th:value="${category.description}" style="width: 120px;">
             <button type="submit" class="btn btn-primary">Обновить</button>
           </form>
-          <form method="post" th:action="@{/categories/delete}" style="display:inline-block;">
+          <form method="post" th:action="@{/categories/soft-delete}">
+            <input type="hidden" name="id" th:value="${category.id}">
+            <button type="submit" class="btn btn-warning">Архивировать</button>
+          </form>
+          <form method="post" th:action="@{/categories/delete}">
             <input type="hidden" name="id" th:value="${category.id}">
             <button type="submit" class="btn btn-danger">Удалить</button>
           </form>
@@ -69,7 +74,7 @@
 
   <div class="pagination" th:if="${totalPages > 1}">
     <a th:if="${currentPage > 1}"
-       th:href="@{/categories(page=${currentPage-1}, size=${pageSize}, search=${searchTerm})}">&laquo; Назад</a>
+       th:href="@{/categories(page=${currentPage-1}, size=${pageSize}, search=${searchTerm})}">&laquo;</a>
 
     <a th:each="p : ${#numbers.sequence(1, totalPages)}"
        th:href="@{/categories(page=${p}, size=${pageSize}, search=${searchTerm})}"
@@ -77,14 +82,13 @@
        th:classappend="${p == currentPage} ? 'active' : ''"></a>
 
     <a th:if="${currentPage < totalPages}"
-       th:href="@{/categories(page=${currentPage+1}, size=${pageSize}, search=${searchTerm})}">Вперед &raquo;</a>
+       th:href="@{/categories(page=${currentPage+1}, size=${pageSize}, search=${searchTerm})}">&raquo;</a>
   </div>
 </div>
 
 <script>
   function toggleAll(source) {
-    const checkboxes = document.querySelectorAll('input[name="ids"]');
-    checkboxes.forEach(cb => cb.checked = source.checked);
+    document.querySelectorAll('input[name="ids"]').forEach(cb => cb.checked = source.checked);
   }
 
   document.getElementById('multiDeleteForm').onsubmit = function(e) {

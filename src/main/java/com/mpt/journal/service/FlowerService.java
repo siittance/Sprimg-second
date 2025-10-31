@@ -24,6 +24,11 @@ public class FlowerService {
         return repo.findActiveFlowers();
     }
 
+    // Новый метод: получить все цветы, включая архивированные
+    public List<FlowerModel> findAllIncludingArchived() {
+        return repo.findAll();
+    }
+
     public FlowerModel getById(int id) {
         return repo.findById(id);
     }
@@ -65,8 +70,8 @@ public class FlowerService {
         }
     }
 
-    public List<FlowerModel> searchAndFilter(String search, Double minPrice, Double maxPrice, Integer categoryId) {
-        return repo.findActiveFlowers().stream()
+    public List<FlowerModel> searchAndFilter(String search, Double minPrice, Double maxPrice, Integer categoryId, boolean includeArchived) {
+        return (includeArchived ? repo.findAll() : repo.findActiveFlowers()).stream()
                 .filter(f -> search == null || f.getName().toLowerCase().contains(search.toLowerCase()))
                 .filter(f -> minPrice == null || f.getPrice() >= minPrice)
                 .filter(f -> maxPrice == null || f.getPrice() <= maxPrice)
@@ -80,6 +85,4 @@ public class FlowerService {
         int toIndex = Math.min(fromIndex + size, source.size());
         return source.subList(fromIndex, toIndex);
     }
-
-
 }

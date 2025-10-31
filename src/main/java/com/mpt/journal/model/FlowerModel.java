@@ -6,10 +6,10 @@ public class FlowerModel {
     private double price;
     private int stockQuantity;
     private int categoryId;
-    private boolean isActive;
+    private boolean deleted; // логическое удаление
 
     public FlowerModel() {
-        this.isActive = true;
+        this.deleted = false; // по умолчанию активен
     }
 
     public FlowerModel(int id, String name, double price, int stockQuantity, int categoryId) {
@@ -36,6 +36,11 @@ public class FlowerModel {
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    // новый геттер для удобства Thymeleaf
+    public boolean isActive() {
+        return !deleted;
+    }
 }
